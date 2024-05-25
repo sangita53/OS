@@ -7,38 +7,57 @@ int main() {
     printf("\nEnter the number of processes: \n");
     scanf("%d", &n);
 
-    int burst_time[n + 1], at[n];
+    int burst_time[n], remaining_bt[n], at[n], completion_time[n], turnaround_time[n], waiting_time[n];
+
+    // Input burst times
     printf("\nBurst time\n");
     for (int i = 0; i < n; i++) {
         printf("Enter burst time for process P%d: ", i);
         scanf("%d", &burst_time[i]);
+        remaining_bt[i] = burst_time[i]; // Initialize remaining burst times
         total_BT += burst_time[i];
     }
 
+    // Input arrival times
     printf("\nArrival time\n");
     for (int i = 0; i < n; i++) {
         printf("Enter arrival time for process P%d: ", i);
         scanf("%d", &at[i]);
     }
 
+    remaining_bt[n] = 9999; // Sentinel value for comparison
 
-    printf("\nProcess\t\tBT\t\tAT\t\tTAT\t\tWT\n");
-    burst_time[n] = 9999;
-
-    for (int time = 0; time < total_BT;) {
+    int time = 0, completed = 0;
+    while (completed < n) {
         smallest = n;
         for (int i = 0; i < n; i++) {
-            if (at[i] <= time && burst_time[i] > 0 && burst_time[i] < burst_time[smallest])
+            if (at[i] <= time && remaining_bt[i] > 0 && remaining_bt[i] < remaining_bt[smallest])
                 smallest = i;
         }
 
-        printf("P%d\t|\t%d\t|\t%d\t|\t%d\t|\t%d\n", smallest, burst_time[smallest], at[smallest], time + burst_time[smallest] - at[smallest], time - at[smallest]);
-        tat += time + burst_time[smallest] - at[smallest];
-        wt += time - at[smallest];
-        time += burst_time[smallest];
-        burst_time[smallest] = 0;
+        if (smallest == n) {
+            time++;
+            continue;
+        }
+
+        time += remaining_bt[smallest];
+        completion_time[smallest] = time;
+        turnaround_time[smallest] = completion_time[smallest] - at[smallest];
+        waiting_time[smallest] = turnaround_time[smallest] - burst_time[smallest];
+
+        tat += turnaround_time[smallest];
+        wt += waiting_time[smallest];
+        remaining_bt[smallest] = 0;
+        completed++;
     }
 
+    // Display results
+    printf("\nProcess\t\tBT\t\tAT\t\tCT\t\tTAT\t\tWT\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t|\t%d\t|\t%d\t|\t%d\t|\t%d\t|\t%d\n", i, burst_time[i], at[i], completion_time[i], turnaround_time[i], waiting_time[i]);
+    }
+
+    // Display average times
     printf("\n\nAverage waiting time = %.2f", wt * 1.0 / n);
     printf("\nAverage turnaround time = %.2f", tat * 1.0 / n);
 

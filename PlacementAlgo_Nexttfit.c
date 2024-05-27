@@ -65,6 +65,7 @@ int main()
     nextFit(m, n, blockSize, processSize);
 }
 
+//Input : 5 4  &&  100 500 200 300 600  &&  212 417 112 426
 
 
 
